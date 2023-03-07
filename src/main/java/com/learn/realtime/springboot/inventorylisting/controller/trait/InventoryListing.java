@@ -1,4 +1,4 @@
-package com.learn.realtime.springboot.inventorylisting.controller;
+package com.learn.realtime.springboot.inventorylisting.controller.trait;
 
 import com.learn.realtime.springboot.inventorylisting.model.Product;
 import org.springframework.http.ResponseEntity;

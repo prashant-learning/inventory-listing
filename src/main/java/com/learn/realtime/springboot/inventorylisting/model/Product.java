@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 @Builder
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Product {
 
     private int productId;

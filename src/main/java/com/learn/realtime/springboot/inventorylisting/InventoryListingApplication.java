@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
+
 /**
  *
  *  1. controller
@@ -24,6 +25,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @ComponentScan without arguments tells Spring to scan the current package and all of its sub-packages.
  *
  *
+ * @Configuration
+ * @RestController
+ * @Service
+ * @Component
+ *
+ *
+ * @GetMapping
+ * @PostMapping
+ * @PutMapping
+ *
+ *
  * Understand the usage in future
  * @EnableAsync
  * @EnableScheduling
@@ -31,12 +43,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  *
  */
-@SpringBootApplication // important
+@SpringBootApplication
 public class InventoryListingApplication {
 
 	public static void main(String[] args) {
 
-		SpringApplication.run(InventoryListingApplication.class, args); // important
+		SpringApplication.run(InventoryListingApplication.class, args);
 	}
 
 }
