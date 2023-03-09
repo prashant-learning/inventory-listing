@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -47,18 +48,18 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
             // throw new RuntimeException("Its something went wrong in server");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
         }
-        val productList = List.of(
-                Product.builder()
-                        .productId(23423)
-                        .discount(10)
-                        .customerFeedback("Very Good")
-                        .build()
-        );
+//        val productList = List.of(
+//                Product.builder()
+//                        .productId(23423)
+//                        .discount(10)
+//                        .customerFeedback("Very Good")
+//                        .build()
+//        );
 
         LocalDateTime endTime = LocalDateTime.now();
         headers.set("ComputationalTime", String.valueOf(ChronoUnit.MILLIS.between(startTime, endTime)));
 
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(productList);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(Collections.EMPTY_LIST);
     }
 
     @Override
@@ -74,8 +75,14 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
     @PostMapping("/product")
     public ResponseEntity<Void> insertProductInventory(@RequestBody Product product) {
 
-        productInventoryService.insertProductInventory(product);
+        System.out.println(product);
 
-       return ResponseEntity.status(HttpStatus.CREATED).build();
+        val createdProduct = productInventoryService.insertProductInventory(product);
+
+        if(createdProduct != null){
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
