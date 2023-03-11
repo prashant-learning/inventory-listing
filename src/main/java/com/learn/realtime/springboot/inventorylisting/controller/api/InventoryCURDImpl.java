@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -43,23 +44,40 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
 
         HttpHeaders headers = new HttpHeaders();
 
-        if (Math.random() > 0.5) {
-            headers.set("Error", "Token not found");
-            // throw new RuntimeException("Its something went wrong in server");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
-        }
-//        val productList = List.of(
-//                Product.builder()
-//                        .productId(23423)
-//                        .discount(10)
-//                        .customerFeedback("Very Good")
-//                        .build()
-//        );
+        List<Product> products = productInventoryService.productsListing();
 
         LocalDateTime endTime = LocalDateTime.now();
         headers.set("ComputationalTime", String.valueOf(ChronoUnit.MILLIS.between(startTime, endTime)));
 
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(Collections.EMPTY_LIST);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(products);
+    }
+
+    @Override
+    @Tag(name = "Listing Inventory")
+    @Operation(summary = "Get getProductById by Id", description = "Gives inventory items by its ID")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully able to fetch the product"),
+                    @ApiResponse(responseCode = "404", description = "No items found")
+            }
+    )
+    @GetMapping("/product/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable int id) {
+        //return Collections.emptyList();
+        LocalDateTime startTime = LocalDateTime.now();
+
+        HttpHeaders headers = new HttpHeaders();
+
+        Optional<Product> mayBeProducts = productInventoryService.productById(id);
+
+        LocalDateTime endTime = LocalDateTime.now();
+        headers.set("ComputationalTime", String.valueOf(ChronoUnit.MILLIS.between(startTime, endTime)));
+
+        if(mayBeProducts.isPresent()){
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(mayBeProducts.get());
+        } else {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @Override
@@ -75,7 +93,6 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
     @PostMapping("/product")
     public ResponseEntity<Void> insertProductInventory(@RequestBody Product product) {
 
-        System.out.println(product);
 
         val createdProduct = productInventoryService.insertProductInventory(product);
 

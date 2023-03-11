@@ -8,4 +8,5 @@ import java.util.List;
 public interface InventoryListing {
 
     public ResponseEntity<List<Product>> getInventoryList();
+    public ResponseEntity<Product> getProductById(int id);
 }
