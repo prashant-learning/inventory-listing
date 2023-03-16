@@ -42,4 +42,16 @@ public class ProductInventoryService {
 
         return productRepository.findById(productId);
     }
+
+    public List<Product> getProductsByUserQuery(String manufacturedBy, String markedBy) {
+        return productRepository.findByManufacturedByAndMarkedBy(manufacturedBy, markedBy);
+    }
+
+    public int getProductCountByManufacturer(String manufacturedBy){
+        return productRepository.getProductCountByManufacturer(manufacturedBy);
+    }
+
+    public void deleteProductById(int productId){
+         productRepository.deleteById(productId);
+    }
 }

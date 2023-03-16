@@ -2,9 +2,13 @@ package com.learn.realtime.springboot.inventorylisting.controller.api;
 
 import com.learn.realtime.springboot.inventorylisting.controller.trait.InventoryAddition;
 import com.learn.realtime.springboot.inventorylisting.controller.trait.InventoryListing;
+import com.learn.realtime.springboot.inventorylisting.controller.trait.InventoryRemoval;
 import com.learn.realtime.springboot.inventorylisting.model.Product;
 import com.learn.realtime.springboot.inventorylisting.service.ProductInventoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,13 +21,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
-public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
+public class InventoryCURDImpl implements InventoryListing, InventoryAddition, InventoryRemoval {
 
     @Autowired
     private ProductInventoryService productInventoryService;
@@ -50,6 +53,25 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
         headers.set("ComputationalTime", String.valueOf(ChronoUnit.MILLIS.between(startTime, endTime)));
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(products);
+    }
+
+    @Override
+    @Tag(name = "Listing Inventory")
+    @Operation(summary = "Get Inventory list", description = "Gives inventory items in list")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully able to fetch the inventories"),
+                    @ApiResponse(responseCode = "404", description = "No items found")
+            }
+    )
+    @GetMapping("/inventory/product/inputs")
+    public ResponseEntity<List<Product>>
+    getProductsByManufacturedByAndMarkedBy(@RequestParam(required = true) String manufacturedBy,
+                                           @RequestParam(required = true) String markedBy) {
+
+        val response = productInventoryService.getProductsByUserQuery(manufacturedBy, markedBy);
+
+       return ResponseEntity.ok(response);
     }
 
     @Override
@@ -82,6 +104,21 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
 
     @Override
     @Tag(name = "Listing Inventory")
+    @Operation(summary = "Get getProductById by Id", description = "Gives inventory items by its ID")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully able to fetch the product"),
+                    @ApiResponse(responseCode = "404", description = "No items found")
+            }
+    )
+    @GetMapping("/product/count/{manufacturedBy}")
+    public ResponseEntity<Integer> getProductsByManufactured(String manufacturedBy) {
+        val count = productInventoryService.getProductCountByManufacturer(manufacturedBy);
+       return ResponseEntity.ok(count);
+    }
+
+    @Override
+    @Tag(name = "Listing Inventory")
     @Operation(summary = "Insert product in Inventory list", description = "")
     @ApiResponses(
             {
@@ -101,5 +138,25 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+
+    @Tag(name = "Listing Inventory")
+    @Operation(summary = "Delete a product", description = "")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully deleted product"),
+                    @ApiResponse(responseCode = "404", description = "Product does not exist"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    @Parameters(
+            @Parameter(name = "token", description = "This is token", in = ParameterIn.HEADER, required = false )
+    )
+    @DeleteMapping("/product/{productId}")
+    public ResponseEntity<Object> removeProductById(@PathVariable int productId, @RequestHeader(required = false) String token) {
+
+        productInventoryService.deleteProductById(productId);
+       return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
