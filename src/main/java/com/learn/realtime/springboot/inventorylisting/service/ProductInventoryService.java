@@ -51,7 +51,19 @@ public class ProductInventoryService {
         return productRepository.getProductCountByManufacturer(manufacturedBy);
     }
 
-    public void deleteProductById(int productId){
-         productRepository.deleteById(productId);
+    /**
+     *
+     *  1. Simply delete it and always send 200 response either it present or not present we dont care
+     *  2. First get and verify if item present, if present then delete or else return different(404) status code
+     *  3. First get and if item is present then save it to archive table and delete from original table
+     */
+    public Product deleteProductById(int productId){
+        Optional<Product> mayBeproduct = productRepository.findById(productId);
+        if (mayBeproduct.isPresent()){
+            productRepository.deleteById(productId);
+        } else {
+            throw new RuntimeException("Item is not present");
+        }
+        return mayBeproduct.get();
     }
 }

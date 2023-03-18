@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -37,7 +39,7 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "Successfully able to fetch the inventories"),
-                    @ApiResponse(responseCode = "404", description = "No items found")
+                    @ApiResponse(responseCode = "404", description = "No items found", content = @Content)
             }
     )
     @GetMapping("/inventory")
@@ -61,7 +63,7 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "Successfully able to fetch the inventories"),
-                    @ApiResponse(responseCode = "404", description = "No items found")
+                    @ApiResponse(responseCode = "404", description = "No items found", content = @Content)
             }
     )
     @GetMapping("/inventory/product/inputs")
@@ -80,7 +82,7 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "Successfully able to fetch the product"),
-                    @ApiResponse(responseCode = "404", description = "No items found")
+                    @ApiResponse(responseCode = "404", description = "No items found", content = @Content)
             }
     )
     @GetMapping("/product/{id}")
@@ -108,7 +110,7 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "Successfully able to fetch the product"),
-                    @ApiResponse(responseCode = "404", description = "No items found")
+                    @ApiResponse(responseCode = "404", description = "No items found", content = @Content)
             }
     )
     @GetMapping("/product/count/{manufacturedBy}")
@@ -123,8 +125,8 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "201", description = "Successfully inserted product"),
-                    @ApiResponse(responseCode = "409", description = "Product already exist"),
-                    @ApiResponse(responseCode = "500", description = "Internal server error")
+                    @ApiResponse(responseCode = "409", description = "Product already exist",content = @Content),
+                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
             }
     )
     @PostMapping("/product")
@@ -146,17 +148,49 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "Successfully deleted product"),
-                    @ApiResponse(responseCode = "404", description = "Product does not exist"),
-                    @ApiResponse(responseCode = "500", description = "Internal server error")
+                    @ApiResponse(responseCode = "404", description = "Product does not exist",content = @Content),
+                    @ApiResponse(responseCode = "500", description = "Internal server error",content = @Content)
             }
     )
     @Parameters(
-            @Parameter(name = "token", description = "This is token", in = ParameterIn.HEADER, required = false )
+            {
+                    @Parameter(name = "token", description = "This is token", in = ParameterIn.HEADER, required = false ),
+                    @Parameter(name = "key", description = "This is Key", in = ParameterIn.HEADER, required = false )
+            }
     )
     @DeleteMapping("/product/{productId}")
-    public ResponseEntity<Object> removeProductById(@PathVariable int productId, @RequestHeader(required = false) String token) {
+    public ResponseEntity<Product> removeProductById(@PathVariable int productId, @RequestHeader(required = false) String token,  @RequestHeader(required = false) String key) {
+       //return ResponseEntity.status(200).body(productInventoryService.deleteProductById(productId));
 
-        productInventoryService.deleteProductById(productId);
-       return ResponseEntity.status(HttpStatus.OK).build();
+
+        try {
+            val productResponse = productInventoryService.deleteProductById(productId);
+            return ResponseEntity.status(200).body(productResponse);
+        }catch (Exception ex){
+            return ResponseEntity.status(404).build();
+        }
+
+    }
+
+
+    @Tag(name = "Listing Inventory")
+    @Operation(summary = "Get getProductById by Id", description = "Gives inventory items by its ID")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully able to fetch the product"),
+                    @ApiResponse(responseCode = "404", description = "No items found", content = @Content)
+            }
+    )
+    @Parameters(
+            {
+                    @Parameter(name = "headers", description = "This is headers", in = ParameterIn.HEADER, required = false )
+            }
+    )
+    @GetMapping("/products/{manufacturedBy}")
+    public ResponseEntity<Integer> getProductsWithAuth(@PathVariable String manufacturedBy, @RequestHeader Map<String, String> headers) {
+
+        System.out.println( headers.getOrDefault("mouli", "Not passed"));
+
+       return ResponseEntity.ok(1);
     }
 }
