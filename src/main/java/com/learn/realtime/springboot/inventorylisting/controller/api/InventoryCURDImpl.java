@@ -3,6 +3,9 @@ package com.learn.realtime.springboot.inventorylisting.controller.api;
 import com.learn.realtime.springboot.inventorylisting.controller.trait.InventoryAddition;
 import com.learn.realtime.springboot.inventorylisting.controller.trait.InventoryListing;
 import com.learn.realtime.springboot.inventorylisting.controller.trait.InventoryRemoval;
+import com.learn.realtime.springboot.inventorylisting.error.ErrorResponse;
+import com.learn.realtime.springboot.inventorylisting.error.InventoryAppErrorStatus;
+import com.learn.realtime.springboot.inventorylisting.exception.ProductNotFoundException;
 import com.learn.realtime.springboot.inventorylisting.model.Product;
 import com.learn.realtime.springboot.inventorylisting.service.ProductInventoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -161,15 +164,12 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @DeleteMapping("/product/{productId}")
     public ResponseEntity<Product> removeProductById(@PathVariable int productId, @RequestHeader(required = false) String token,  @RequestHeader(required = false) String key) {
        //return ResponseEntity.status(200).body(productInventoryService.deleteProductById(productId));
-
-
-        try {
+      //  try {
             val productResponse = productInventoryService.deleteProductById(productId);
             return ResponseEntity.status(200).body(productResponse);
-        }catch (Exception ex){
-            return ResponseEntity.status(404).build();
-        }
-
+   //     }catch (Exception ex){
+   //         return ResponseEntity.status(403).build();
+   //     }
     }
 
 
@@ -189,8 +189,19 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @GetMapping("/products/{manufacturedBy}")
     public ResponseEntity<Integer> getProductsWithAuth(@PathVariable String manufacturedBy, @RequestHeader Map<String, String> headers) {
 
-        System.out.println( headers.getOrDefault("mouli", "Not passed"));
+        System.out.println( headers.getOrDefault("mouli", "Not passed")); // not a good way to log 
 
        return ResponseEntity.ok(1);
+    }
+
+
+    @ExceptionHandler({ProductNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException exception){
+
+        ErrorResponse errorResponse  = new ErrorResponse(LocalDateTime.now(), InventoryAppErrorStatus.B001, HttpStatus.NOT_FOUND );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
     }
 }

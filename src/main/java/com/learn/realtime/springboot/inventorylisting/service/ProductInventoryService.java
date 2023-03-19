@@ -1,5 +1,6 @@
 package com.learn.realtime.springboot.inventorylisting.service;
 
+import com.learn.realtime.springboot.inventorylisting.exception.ProductNotFoundException;
 import com.learn.realtime.springboot.inventorylisting.model.Product;
 import com.learn.realtime.springboot.inventorylisting.repository.ProductRepository;
 import lombok.val;
@@ -62,7 +63,7 @@ public class ProductInventoryService {
         if (mayBeproduct.isPresent()){
             productRepository.deleteById(productId);
         } else {
-            throw new RuntimeException("Item is not present");
+            throw new ProductNotFoundException("Product is not present in our inventory");
         }
         return mayBeproduct.get();
     }
