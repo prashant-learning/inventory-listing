@@ -6,6 +6,7 @@ import com.learn.realtime.springboot.inventorylisting.controller.trait.Inventory
 import com.learn.realtime.springboot.inventorylisting.error.ErrorResponse;
 import com.learn.realtime.springboot.inventorylisting.error.InventoryAppErrorStatus;
 import com.learn.realtime.springboot.inventorylisting.exception.ProductNotFoundException;
+import com.learn.realtime.springboot.inventorylisting.exception.TestUserException;
 import com.learn.realtime.springboot.inventorylisting.model.Product;
 import com.learn.realtime.springboot.inventorylisting.service.ProductInventoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -129,12 +130,16 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
             {
                     @ApiResponse(responseCode = "201", description = "Successfully inserted product"),
                     @ApiResponse(responseCode = "409", description = "Product already exist",content = @Content),
+                    @ApiResponse(responseCode = "406", description = "This is test user no need to insert",content = @Content),
                     @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
             }
     )
     @PostMapping("/product")
     public ResponseEntity<Void> insertProductInventory(@RequestBody Product product) {
 
+        if(product.getProductId() == 0){
+            throw new TestUserException("this is test user");
+        }
 
         val createdProduct = productInventoryService.insertProductInventory(product);
 
@@ -199,7 +204,7 @@ public class InventoryCURDImpl implements InventoryListing, InventoryAddition, I
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException exception){
 
-        ErrorResponse errorResponse  = new ErrorResponse(LocalDateTime.now(), InventoryAppErrorStatus.B001, HttpStatus.NOT_FOUND );
+        ErrorResponse errorResponse  = new ErrorResponse(LocalDateTime.now(), InventoryAppErrorStatus.B001, HttpStatus.NOT_FOUND, exception.getMessage() );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);

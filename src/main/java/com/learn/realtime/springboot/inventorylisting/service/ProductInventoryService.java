@@ -1,5 +1,6 @@
 package com.learn.realtime.springboot.inventorylisting.service;
 
+import com.learn.realtime.springboot.inventorylisting.exception.DuplicateProductInsertionError;
 import com.learn.realtime.springboot.inventorylisting.exception.ProductNotFoundException;
 import com.learn.realtime.springboot.inventorylisting.model.Product;
 import com.learn.realtime.springboot.inventorylisting.repository.ProductRepository;
@@ -20,6 +21,9 @@ public class ProductInventoryService {
 
     public Product insertProductInventory(Product product){
 
+        if (productRepository.findById(product.getProductId()).isPresent()){
+            throw new DuplicateProductInsertionError("Product Already exist");
+        }
         return productRepository.save(product);
 
     }

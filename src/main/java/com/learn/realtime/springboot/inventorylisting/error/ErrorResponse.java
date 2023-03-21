@@ -17,4 +17,5 @@ public class ErrorResponse {
     private LocalDateTime errorOccuredTime;
     private String status;
     private HttpStatus httpStatus;
+    private String message;
 }
