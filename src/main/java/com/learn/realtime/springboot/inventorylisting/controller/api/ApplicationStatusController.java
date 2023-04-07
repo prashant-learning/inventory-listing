@@ -1,11 +1,15 @@
 package com.learn.realtime.springboot.inventorylisting.controller.api;
 
+import com.learn.realtime.springboot.inventorylisting.model.HikariConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class ApplicationStatusController {
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @Value("${spring.datasource.hikari.maximum-pool-size}")
+    private String poolSize;
+
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private HikariConfig hikariConfig;
 
     private static Logger logger = LoggerFactory.getLogger(ApplicationStatusController.class);
 
@@ -38,6 +54,12 @@ public class ApplicationStatusController {
             logger.error("Application is error");
         }
 
-        return ResponseEntity.ok("Application is running");
+        System.out.println(hikariConfig.getConnectionTimeout());
+        System.out.println(hikariConfig.getIdleTimeout());
+        System.out.println(hikariConfig.getPoolName());
+        System.out.println(hikariConfig.getMinimumIdle());
+        System.out.println(hikariConfig.getPoolName());
+      //  System.out.println(environment.getProperty("spring.datasource.hikari.poolName"));
+        return ResponseEntity.ok("Application is running  at server port = "+ poolSize);
     }
 }
