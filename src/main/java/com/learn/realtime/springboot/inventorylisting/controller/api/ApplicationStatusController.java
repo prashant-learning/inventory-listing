@@ -1,5 +1,6 @@
 package com.learn.realtime.springboot.inventorylisting.controller.api;
 
+import com.learn.realtime.springboot.inventorylisting.config.custom.bean.CustomBeanCreator;
 import com.learn.realtime.springboot.inventorylisting.model.HikariConfig;
 import com.learn.realtime.springboot.inventorylisting.readApplicationProperties.DatasourceConfig;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +40,9 @@ public class ApplicationStatusController {
     @Autowired
     private DatasourceConfig datasourceConfig;
 
+    @Autowired
+    private CustomBeanCreator customBeanCreator;
+
     private static Logger logger = LoggerFactory.getLogger(ApplicationStatusController.class);
 
     @Tag(name = "Application Status")
@@ -69,6 +73,8 @@ public class ApplicationStatusController {
 
         System.out.println(datasourceConfig.getPassword());
         System.out.println(datasourceConfig.getHikari().getPoolName());
+
+        System.out.println( customBeanCreator.getCompany().getName());
         return ResponseEntity.ok("Application is running  at server port = "+ poolSize);
     }
 }
